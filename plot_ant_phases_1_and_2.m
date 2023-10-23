@@ -1,4 +1,4 @@
-function plot_ant_phases_1_and_2( h1, t1 )
+function plot_ant_phases_1_and_2( h1, t1, h2, t2 )
 
 load h_move.mat
 
