@@ -5,12 +5,11 @@ load('circular.mat');
 R = 0.208;  % Radius of the antenna array in meters
 f = 5.5e9;  % Frequency of the signal in Hz
 
-% % Calculate the time difference between consecutive timestamps
-% time_diff = diff(t);
-% angular_velocity = 360 / (12.25 / time_diff(1));  % Degrees per second
-% 
-% % Calculate angular positions (φ) for each measurement in radians
-% phi = cumsum(angular_velocity * time_diff) * pi / 180; % Convert to radians
+% Calculate the time difference between consecutive timestamps
+time_diff = diff(t);
+angular_velocity = 360 / (12.25 / time_diff(1));  % Degrees per second
+% Calculate angular positions (φ) for each measurement in radians
+phi = cumsum(angular_velocity * time_diff) * pi / 180; % Convert to radians
 
 % Create an array to store the multipath profile
 theta_values = -180:180;  % Adjusted θ' values at 3-degree intervals
@@ -18,11 +17,11 @@ multipath_profile = zeros(size(theta_values));
 
 % Calculate the multipath profile for different θ' values
 for i = 1:length(theta_values)
-    mpsum = zeros(size(theta_values));
-    for j = 1:length(theta_values)
-        theta_prime = theta_values(i) - theta_values(j);  % θ' in degrees
-        hk = h(i);
-        mpsum(j) = abs((hk * exp(1j * 2 * pi * f * R * cos(theta_prime)))).^2;
+    theta_prime = theta_values(i);
+    mpsum = zeros(size(t));
+    for j = 1:length(h)-1
+        hk = h(j,2) / h(j,1);
+        mpsum(j) = abs((hk * exp(1j * 2 * pi * f * R * cos(phi(j)-theta_prime)))).^2;
     end
     multipath_profile(i) = sum(mpsum); 
 end
@@ -36,8 +35,8 @@ load('MultipathProfile.mat');
 % Plot both the calculated multipath profile and the provided values
 plot(theta_values, multipath_profile, 'b', 'LineWidth', 2);
 hold on;
-theta_values3 = -180:3:180;
-plot(theta_values3, P, 'r', 'LineWidth', 2);
+% theta_values3 = -180:3:180;
+% plot(theta_values3, P, 'r', 'LineWidth', 2);
 hold off;
 
 xlabel('θ'' (degrees)');
